@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* Opsional: Base styling untuk background dashboard Anda */
+@layer base {
+  body {
+    background-color: #f9fafb; /* gray-50 */
+    color: #1f2937; /* gray-800 */
+  }
+}
+
+/* SCALABLE PREVIEW CONTAINER */
+.ballot-print-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    transform-origin: top center;
+    /* Kita scale down preview di layar agar muat */
+    transform: scale(0.35); 
+    margin-bottom: -50%; /* Menyesuaikan height setelah di-scale */
+}
+
+@media (min-width: 1024px) {
+    .ballot-print-container { transform: scale(0.45); margin-bottom: -40%; }
+}
+@media (min-width: 1536px) {
+    .ballot-print-container { transform: scale(0.6); margin-bottom: -20%; }
+}
+
+/* UKURAN KERTAS ASLI */
+.ballot-page {
+    background-color: white;
+    box-sizing: border-box;
+}
+
+.presidential-size {
+    width: 22cm;
+    height: 31cm;
+    padding: 1cm;
+}
+
+.legislative-size {
+    width: 52cm;
+    height: 82cm;
+    padding: 2cm;
+}
+
+/* PRINT DIRECTIVES
+  Saat menekan "Cetak", browser akan membaca ini dan mengabaikan scale preview di atas.
+*/
+@media print {
+    @page { margin: 0; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    
+    .ballot-print-container {
+        transform: scale(1) !important; /* Kembalikan ke ukuran asli 100% */
+        margin: 0 !important;
+        justify-content: flex-start;
+    }
+    
+    .ballot-page {
+        box-shadow: none !important;
+        margin: 0;
+        border: none;
+        page-break-after: always;
+    }
+
+    /* Memaksa background color agar ikut tercetak */
+    .print-exact-color {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
