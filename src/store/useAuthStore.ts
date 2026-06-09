@@ -12,17 +12,14 @@ export interface MenuAccess {
 
 export interface RoleInfo {
   name: string;
-  scope: "GENERAL" | "PROVINSI" | "KABKOTA";
 }
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  kodeProvinsi: number | null;
-  kodeKabupaten: number | null;
   roles: RoleInfo[];
-  menus: MenuAccess[];
+  menus: MenuAccess[]; // <-- Kembalikan menus yang berisi permissions
 }
 
 interface AuthState {
@@ -31,10 +28,9 @@ interface AuthState {
   user: User | null;
   login: (token: string, refreshToken: string, user: User) => void;
   logout: () => void;
-  hasPermission: (path: string, permission: string) => boolean; // Dibuat string agar lebih fleksibel menampung custom permission dari database
+  hasPermission: (path: string, permission: string) => boolean; // <-- Kembalikan ke 2 parameter
 }
 
-// Fungsi helper untuk inisialisasi state secara aman dari LocalStorage
 const getUserFromStorage = (): User | null => {
   try {
     const userData = localStorage.getItem("user");
@@ -65,21 +61,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     sessionStorage.clear();
 
     set({ token: null, refreshToken: null, user: null });
-
-    // Hard Redirect untuk membuang memori state SPA
     window.location.replace("/login");
   },
 
   hasPermission: (path, permission) => {
     const user = get().user;
 
+    // Evaluasi berdasarkan path menu dan permission
     if (!user || !user.menus) return false;
 
-    // Cari menu yang path-nya sama persis dengan yang diminta
     const menu = user.menus.find((m) => m.path === path);
     if (!menu) return false;
 
-    // Cek apakah di menu tersebut user punya permission (contoh: READ, CREATE)
     return menu.permissions.includes(permission);
   },
 }));

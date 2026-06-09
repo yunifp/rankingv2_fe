@@ -1,5 +1,3 @@
-export type RoleScope = "GENERAL" | "PROVINSI" | "KABKOTA";
-
 export interface PaginationMeta {
   totalItems: number;
   currentPage: number;
@@ -10,7 +8,6 @@ export interface PaginationMeta {
 export interface Role {
   id: string;
   name: string;
-  scope: RoleScope;
   description?: string;
 }
 
@@ -24,12 +21,6 @@ export interface User {
   email: string;
   createdAt: string;
   roles: UserRole[];
-  kodeProvinsi: number | null;
-  kodeKabupaten: number | null;
-  provinsiId: number | null;
-  kabupatenId: number | null;
-  provinsi?: { nama: string };
-  kabupaten?: { nama: string };
 }
 
 export interface UserFormData {
@@ -37,8 +28,4 @@ export interface UserFormData {
   email: string;
   password?: string;
   roleIds: string[];
-  kodeProvinsi: number | null;
-  kodeKabupaten: number | null;
-  provinsiId: number | null;
-  kabupatenId: number | null;
 }

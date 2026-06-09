@@ -29,13 +29,11 @@ export interface RoleMenuAccess {
 export interface Role {
   id: string;
   name: string;
-  scope: string;
   description: string | null;
   menuAccess?: { menuId: string; permissionId: string }[];
 }
 
 export interface RoleFormData {
   name: string;
-  scope: string;
   description: string;
 }

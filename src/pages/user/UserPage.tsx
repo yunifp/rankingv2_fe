@@ -3,111 +3,46 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useUsers } from '../../hooks/useUsers';
 import { useAuthStore } from '../../store/useAuthStore';
-import { api } from '../../services/api';
 import type { User, UserFormData } from '../../types/user';
 import {
     Search, Plus, Edit, Trash2, User as UserIcon,
-    Mail, Shield, X, ChevronDown, Map, ChevronUp,
+    Mail, Shield, X, ChevronDown, ChevronUp,
     Eye, EyeOff, Loader2, Inbox, AlertTriangle, CheckCircle, XCircle
 } from 'lucide-react';
 
-interface Provinsi {
-    id: number;
-    kode_pro: number;
-    nama: string;
-}
-
-interface Kabupaten {
-    id: number;
-    kode_kab: number;
-    nama: string;
-}
-
 export const UserPage: React.FC = () => {
     const { users, roles, meta, isLoading, createUser, updateUser, deleteUser, fetchUsers } = useUsers();
-    const { hasPermission, user: loggedInUser } = useAuthStore();
+    const { hasPermission } = useAuthStore();
 
-    const canCreate = hasPermission('/users', 'CREATE');
-    const canUpdate = hasPermission('/users', 'UPDATE');
-    const canDelete = hasPermission('/users', 'DELETE');
+    // Menggunakan permission string murni
+const canCreate = hasPermission('/users', 'CREATE');
+const canUpdate = hasPermission('/users', 'UPDATE');
+const canDelete = hasPermission('/users', 'DELETE');
 
-    // --- LOGIKA SCOPE USER LOGIN ---
-    const isProvRestricted = Boolean(loggedInUser?.kodeProvinsi);
-    const isKabRestricted = Boolean(loggedInUser?.kodeKabupaten);
-
-    // --- STATE Paginasi & Pencarian ---
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const [sortConfig, setSortConfig] = useState<{ key: keyof User; direction: 'asc' | 'desc' } | null>(null);
 
-    // --- STATE Form & UI ---
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [formData, setFormData] = useState<UserFormData>({
-        name: '', email: '', password: '', roleIds: [],
-        kodeProvinsi: null, kodeKabupaten: null,
-        provinsiId: null, kabupatenId: null
+        name: '', email: '', password: '', roleIds: []
     });
 
-    const [provinsis, setProvinsis] = useState<Provinsi[]>([]);
-    const [kabupatens, setKabupatens] = useState<Kabupaten[]>([]);
-
-    // Success Modal States
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
 
-    // Delete Modal States
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
-    // Error Modal States
     const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         fetchUsers(page, limit);
     }, [page, limit, fetchUsers]);
-
-    useEffect(() => {
-        if (isModalOpen) {
-            api.get('/wilayah/all/provinsi').then(res => setProvinsis(res.data.data));
-        }
-    }, [isModalOpen]);
-
-    useEffect(() => {
-        if (formData.kodeProvinsi) {
-            api.get(`/wilayah/all/kabupaten/${formData.kodeProvinsi}`).then(res => setKabupatens(res.data.data));
-        } else {
-            setKabupatens([]);
-        }
-    }, [formData.kodeProvinsi]);
-
-    // ==========================================
-    // LOGIC: FILTERING AVAILABLE ROLES
-    // ==========================================
-    const filteredRoles = useMemo(() => {
-        if (!loggedInUser) return [];
-
-        if (isKabRestricted) {
-            return roles.filter(r => r.scope === 'KABKOTA');
-        }
-
-        if (isProvRestricted) {
-            return roles.filter(r => r.scope === 'PROVINSI' || r.scope === 'KABKOTA');
-        }
-
-        return roles;
-    }, [roles, loggedInUser, isProvRestricted, isKabRestricted]);
-
-    const selectedRoleScopes = useMemo(() => {
-        const selected = roles.filter(r => formData.roleIds.includes(r.id));
-        return {
-            requireProv: selected.some(r => r.scope === 'PROVINSI' || r.scope === 'KABKOTA'),
-            requireKab: selected.some(r => r.scope === 'KABKOTA')
-        };
-    }, [formData.roleIds, roles]);
 
     const processedUsers = useMemo(() => {
         let result = [...users];
@@ -143,57 +78,15 @@ export const UserPage: React.FC = () => {
             setFormData({
                 name: userTarget.name,
                 email: userTarget.email,
-                roleIds: userTarget.roles.map((r: any) => r.role.id),
-                kodeProvinsi: userTarget.kodeProvinsi,
-                kodeKabupaten: userTarget.kodeKabupaten,
-                provinsiId: userTarget.provinsiId,
-                kabupatenId: userTarget.kabupatenId
+                roleIds: userTarget.roles.map((r: any) => r.role.id)
             });
         } else {
             setCurrentUser(null);
             setFormData({
-                name: '', email: '', password: '', roleIds: [],
-                kodeProvinsi: loggedInUser?.kodeProvinsi || null,
-                kodeKabupaten: loggedInUser?.kodeKabupaten || null,
-                provinsiId: null,
-                kabupatenId: null
+                name: '', email: '', password: '', roleIds: []
             });
         }
         setIsModalOpen(true);
-    };
-
-    const handleProvinsiChange = (kodeProStr: string) => {
-        if (!kodeProStr) {
-            setFormData({ ...formData, provinsiId: null, kodeProvinsi: null, kabupatenId: null, kodeKabupaten: null });
-            return;
-        }
-        const kode = Number(kodeProStr);
-        const selected = provinsis.find(p => p.kode_pro === kode);
-        if (selected) {
-            setFormData({
-                ...formData,
-                provinsiId: selected.id,
-                kodeProvinsi: selected.kode_pro,
-                kabupatenId: null,
-                kodeKabupaten: null
-            });
-        }
-    };
-
-    const handleKabupatenChange = (kodeKabStr: string) => {
-        if (!kodeKabStr) {
-            setFormData({ ...formData, kabupatenId: null, kodeKabupaten: null });
-            return;
-        }
-        const kode = Number(kodeKabStr);
-        const selected = kabupatens.find(k => k.kode_kab === kode);
-        if (selected) {
-            setFormData({
-                ...formData,
-                kabupatenId: selected.id,
-                kodeKabupaten: selected.kode_kab
-            });
-        }
     };
 
     const toggleRole = (roleId: string) => {
@@ -209,24 +102,6 @@ export const UserPage: React.FC = () => {
         e.preventDefault();
         const finalData = { ...formData };
 
-        if (finalData.kodeProvinsi && !finalData.provinsiId) {
-            const p = provinsis.find(x => x.kode_pro === finalData.kodeProvinsi);
-            if (p) finalData.provinsiId = p.id;
-        }
-        if (finalData.kodeKabupaten && !finalData.kabupatenId) {
-            const k = kabupatens.find(x => x.kode_kab === finalData.kodeKabupaten);
-            if (k) finalData.kabupatenId = k.id;
-        }
-
-        if (!selectedRoleScopes.requireProv) {
-            finalData.kodeProvinsi = null;
-            finalData.provinsiId = null;
-        }
-        if (!selectedRoleScopes.requireKab) {
-            finalData.kodeKabupaten = null;
-            finalData.kabupatenId = null;
-        }
-
         const result = currentUser
             ? await updateUser(currentUser.id, finalData)
             : await createUser(finalData);
@@ -237,7 +112,6 @@ export const UserPage: React.FC = () => {
             setIsSuccessModalOpen(true);
             fetchUsers(page, limit);
         } else {
-            // Tampilkan error menggunakan Modal
             setErrorMessage(result.message || "Gagal memproses data. Silakan periksa kembali input Anda.");
             setIsErrorModalOpen(true);
         }
@@ -269,7 +143,7 @@ export const UserPage: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Manajemen Pengguna</h1>
-                    <p className="text-sm text-slate-500 font-medium">Pengaturan akun petugas dan hak akses wilayah.</p>
+                    <p className="text-sm text-slate-500 font-medium">Pengaturan akun pengguna dan peran sistem.</p>
                 </div>
                 {canCreate && (
                     <button onClick={() => openModal()} className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-md hover:bg-blue-700 hover:shadow-lg transition-all font-semibold active:scale-95 transform">
@@ -300,7 +174,7 @@ export const UserPage: React.FC = () => {
                                     </div>
                                 </th>
                                 <th className="p-5 whitespace-nowrap">Email</th>
-                                <th className="p-5 whitespace-nowrap">Roles & Scope</th>
+                                <th className="p-5 whitespace-nowrap">Roles</th>
                                 {(canUpdate || canDelete) && <th className="p-5 text-center whitespace-nowrap">Aksi</th>}
                             </tr>
                         </thead>
@@ -312,9 +186,6 @@ export const UserPage: React.FC = () => {
                                     <tr key={userItem.id} className="hover:bg-slate-50/80 transition-colors group">
                                         <td className="p-5">
                                             <div className="font-semibold text-slate-800 text-base">{userItem.name}</div>
-                                            <div className="text-[11px] text-slate-500 font-medium mt-1 uppercase tracking-wide">
-                                                {userItem.kabupaten ? `KAB: ${userItem.kabupaten.nama}` : userItem.provinsi ? `PROV: ${userItem.provinsi.nama}` : 'SCOPE: NASIONAL'}
-                                            </div>
                                         </td>
                                         <td className="p-5 text-slate-600 font-medium">{userItem.email}</td>
                                         <td className="p-5">
@@ -360,7 +231,6 @@ export const UserPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* MODAL FORM CREATE/EDIT */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-in zoom-in duration-200">
@@ -400,7 +270,7 @@ export const UserPage: React.FC = () => {
                             <div className="space-y-3">
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 flex items-center gap-1.5"><Shield size={14} /> Tentukan Role / Peran</label>
                                 <div className="grid grid-cols-2 gap-3 bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-inner">
-                                    {filteredRoles.map(role => (
+                                    {roles.map(role => (
                                         <label key={role.id} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border ${formData.roleIds.includes(role.id) ? 'bg-blue-50/50 border-blue-600 text-blue-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300'}`}>
                                             <input type="checkbox" className="w-4 h-4 accent-blue-600 rounded" checked={formData.roleIds.includes(role.id)} onChange={() => toggleRole(role.id)} />
                                             <span className="text-xs font-bold uppercase tracking-wide">{role.name}</span>
@@ -408,47 +278,6 @@ export const UserPage: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
-
-                            {(selectedRoleScopes.requireProv || selectedRoleScopes.requireKab) && (
-                                <div className="space-y-4 p-6 bg-slate-50 rounded-2xl border border-slate-200 animate-in fade-in slide-in-from-top-2">
-                                    <h3 className="text-[11px] font-bold text-slate-700 uppercase tracking-widest flex items-center gap-2 mb-2"><Map size={14} className="text-blue-600" /> Konfigurasi Wilayah Tugas</h3>
-                                    <div className="grid grid-cols-1 gap-4">
-                                        {selectedRoleScopes.requireProv && (
-                                            <div className="space-y-1.5">
-                                                <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 tracking-widest">Provinsi</label>
-                                                <select
-                                                    required
-                                                    disabled={isProvRestricted || isKabRestricted}
-                                                    value={formData.kodeProvinsi ? String(formData.kodeProvinsi) : ''}
-                                                    onChange={e => handleProvinsiChange(e.target.value)}
-                                                    className="w-full border border-slate-200 p-3.5 rounded-xl outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 bg-white font-medium shadow-sm text-slate-700 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed transition-all"
-                                                >
-                                                    <option value="">-- Pilih Provinsi --</option>
-                                                    {provinsis.map(p => <option key={p.kode_pro} value={String(p.kode_pro)}>{p.nama}</option>)}
-                                                </select>
-                                                {isProvRestricted && <p className="text-[10px] text-red-500 font-medium ml-1 italic">* Terkunci sesuai otoritas Anda</p>}
-                                            </div>
-                                        )}
-
-                                        {selectedRoleScopes.requireKab && (
-                                            <div className="space-y-1.5 animate-in slide-in-from-top-2">
-                                                <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 tracking-widest">Kabupaten / Kota</label>
-                                                <select
-                                                    required
-                                                    disabled={!formData.kodeProvinsi || isKabRestricted}
-                                                    value={formData.kodeKabupaten ? String(formData.kodeKabupaten) : ''}
-                                                    onChange={e => handleKabupatenChange(e.target.value)}
-                                                    className="w-full border border-slate-200 p-3.5 rounded-xl outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 bg-white font-medium shadow-sm text-slate-700 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed transition-all"
-                                                >
-                                                    <option value="">-- Pilih Kabupaten --</option>
-                                                    {kabupatens.map(k => <option key={k.kode_kab} value={String(k.kode_kab)}>{k.nama}</option>)}
-                                                </select>
-                                                {isKabRestricted && <p className="text-[10px] text-red-500 font-medium ml-1 italic">* Terkunci sesuai otoritas Anda</p>}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
 
                             <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors text-sm">Batal</button>
@@ -461,7 +290,6 @@ export const UserPage: React.FC = () => {
                 </div>
             )}
 
-            {/* MODAL ERROR (Validasi Email/Sistem) */}
             {isErrorModalOpen && (
                 <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in duration-200">
@@ -486,7 +314,6 @@ export const UserPage: React.FC = () => {
                 </div>
             )}
 
-            {/* MODAL KONFIRMASI DELETE */}
             {isDeleteModalOpen && (
                 <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in duration-200">
@@ -517,7 +344,6 @@ export const UserPage: React.FC = () => {
                 </div>
             )}
 
-            {/* MODAL SUKSES */}
             {isSuccessModalOpen && (
                 <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in duration-200">

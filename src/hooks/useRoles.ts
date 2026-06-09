@@ -23,7 +23,6 @@ export const useRoles = () => {
   const [menus, setMenus] = useState<Menu[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mengambil Permissions dan Menus (Biasanya tidak berubah, bisa diambil sekali)
   const fetchConfigData = useCallback(async () => {
     try {
       const [resPerms, resMenus] = await Promise.all([
@@ -37,7 +36,6 @@ export const useRoles = () => {
     }
   }, []);
 
-  // Fetch Roles dengan Pagination
   const fetchRoles = useCallback(
     async (page: number = 1, limit: number = 10) => {
       setIsLoading(true);
