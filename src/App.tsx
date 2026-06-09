@@ -11,6 +11,7 @@ import { useAuthStore } from './store/useAuthStore';
 import { SearchX, ArrowLeft } from 'lucide-react';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
+import { DashboardPage } from './pages/dashboard/DashboardPage'; // <-- IMPORT HALAMAN BARU
 
 const NotFoundPage = () => {
   const navigate = useNavigate();
@@ -53,13 +54,6 @@ const NotFoundPage = () => {
     </div>
   );
 };
-
-const DashboardHome = () => (
-  <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[400px]">
-    <h2 className="text-xl font-bold text-gray-800">Selamat Datang di SISU</h2>
-    <p className="text-gray-500 mt-2">Gunakan sidebar untuk mengelola data pemilihan.</p>
-  </div>
-);
 
 function App() {
   const { user } = useAuthStore();
@@ -116,7 +110,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<DashboardHome />} />
+            <Route path="dashboard" element={<DashboardPage />} />
             <Route path="profile" element={<ProfilePage />} />
 
             <Route path="users" element={<UserPage />} />

@@ -109,34 +109,34 @@ export const MenuPage: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 max-w-6xl mx-auto font-sans pb-10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Struktur Navigasi Menu</h1>
-                    <p className="text-sm text-slate-500 font-medium">Kelola menu utama dan submenu sidebar secara hierarkis.</p>
+                    <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight">Struktur Navigasi Menu</h1>
+                    <p className="text-sm text-slate-500 font-medium mt-1">Kelola menu utama dan submenu sidebar secara hierarkis.</p>
                 </div>
                 {canCreate && (
-                    <button onClick={() => openModal()} className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-md hover:bg-blue-700 hover:shadow-lg transition-all font-semibold active:scale-95 transform">
+                    <button onClick={() => openModal()} className="bg-emerald-600 text-white px-5 py-3 rounded-xl flex items-center gap-2 shadow-md shadow-emerald-600/20 hover:bg-emerald-700 hover:shadow-lg transition-all font-bold active:scale-[0.98] transform text-sm">
                         <Plus size={18} /> Tambah Menu
                     </button>
                 )}
             </div>
 
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-                <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-                    <div className="relative max-w-sm">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+                <div className="p-6 border-b border-slate-100 bg-white">
+                    <div className="relative max-w-sm group">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" size={18} />
                         <input
                             type="text" placeholder="Cari menu..."
                             value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none text-sm font-medium shadow-sm transition-all"
+                            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 outline-none text-sm font-medium shadow-sm transition-all"
                         />
                     </div>
                 </div>
 
                 <div className="overflow-x-auto flex-1">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                        <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-100">
                             <tr>
                                 <th className="p-5 w-20 text-center whitespace-nowrap">Order</th>
                                 <th className="p-5 whitespace-nowrap">Nama Menu & Hierarki</th>
@@ -149,12 +149,17 @@ export const MenuPage: React.FC = () => {
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-sm">
                             {isLoading ? (
-                                <tr><td colSpan={(canUpdate || canDelete) ? 5 : 4} className="p-20 text-center text-slate-400 font-medium"><Loader2 className="animate-spin mx-auto mb-2" />Memuat struktur menu...</td></tr>
+                                <tr>
+                                    <td colSpan={(canUpdate || canDelete) ? 5 : 4} className="p-20 text-center text-slate-400 font-medium">
+                                        <Loader2 className="animate-spin text-emerald-600 mx-auto mb-3" size={32} />
+                                        <p className="animate-pulse">Memuat struktur menu...</p>
+                                    </td>
+                                </tr>
                             ) : processedMenus.length > 0 ? (
                                 processedMenus.map((menu: any) => (
-                                    <tr key={menu.id} className={`${menu.level > 0 ? 'bg-slate-50/50' : 'bg-white'} hover:bg-blue-50/30 transition-colors group`}>
+                                    <tr key={menu.id} className={`${menu.level > 0 ? 'bg-slate-50/30' : 'bg-white'} hover:bg-emerald-50/30 transition-colors group`}>
                                         <td className="p-5 text-center">
-                                            <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-md text-[11px] font-bold shadow-sm border border-slate-200">
+                                            <span className="bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg text-[11px] font-bold shadow-sm border border-slate-100">
                                                 {menu.order}
                                             </span>
                                         </td>
@@ -167,35 +172,35 @@ export const MenuPage: React.FC = () => {
                                                 {menu.level > 0 ? (
                                                     <FolderTree size={16} className="text-slate-400" />
                                                 ) : (
-                                                    <Layout size={16} className="text-blue-600" />
+                                                    <Layout size={16} className="text-emerald-600" />
                                                 )}
-                                                <span className={menu.level === 0 ? 'font-bold' : 'font-medium'}>
+                                                <span className={menu.level === 0 ? 'font-bold' : 'font-semibold'}>
                                                     {menu.title}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="p-5">
-                                            <code className="text-[11px] bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md font-bold border border-blue-100 shadow-sm tracking-wide">
+                                            <code className="text-[11px] bg-slate-50 text-slate-600 px-2.5 py-1.5 rounded-md font-bold border border-slate-100 shadow-sm tracking-wide">
                                                 {menu.path || '(Dropdown Only)'}
                                             </code>
                                         </td>
                                         <td className="p-5">
                                             {menu.level === 0 ? (
-                                                <span className="text-[10px] font-bold text-blue-800 border border-blue-200 px-3 py-1 rounded-md bg-blue-50 shadow-sm tracking-wider uppercase">PARENT</span>
+                                                <span className="text-[10px] font-bold text-emerald-700 border border-emerald-100/50 px-3 py-1.5 rounded-lg bg-emerald-50 shadow-sm tracking-wider uppercase">PARENT</span>
                                             ) : (
-                                                <span className="text-[10px] font-bold text-slate-600 border border-slate-200 px-3 py-1 rounded-md bg-slate-100 shadow-sm tracking-wider uppercase">SUBMENU</span>
+                                                <span className="text-[10px] font-bold text-slate-500 border border-slate-100 px-3 py-1.5 rounded-lg bg-slate-50 shadow-sm tracking-wider uppercase">SUBMENU</span>
                                             )}
                                         </td>
                                         {(canUpdate || canDelete) && (
                                             <td className="p-5">
                                                 <div className="flex justify-center gap-2">
                                                     {canUpdate && (
-                                                        <button onClick={() => openModal(menu)} className="p-2 text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-100 rounded-lg transition-all" title="Edit">
+                                                        <button onClick={() => openModal(menu)} className="p-2 text-emerald-600 hover:bg-emerald-50 border border-transparent hover:border-emerald-100 rounded-lg transition-all active:scale-95" title="Edit">
                                                             <Edit size={16} />
                                                         </button>
                                                     )}
                                                     {canDelete && (
-                                                        <button onClick={() => confirmDelete(menu.id)} className="p-2 text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-lg transition-all" title="Hapus">
+                                                        <button onClick={() => confirmDelete(menu.id)} className="p-2 text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-lg transition-all active:scale-95" title="Hapus">
                                                             <Trash2 size={16} />
                                                         </button>
                                                     )}
@@ -215,7 +220,7 @@ export const MenuPage: React.FC = () => {
             {/* MODAL FORM */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
-                    <div className="bg-white rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                    <div className="bg-white rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
                         <div className="p-6 bg-slate-900 text-white flex justify-between items-center border-b border-slate-800">
                             <h2 className="text-lg font-bold tracking-tight">{currentMenu ? 'Edit Menu' : 'Tambah Menu Baru'}</h2>
                             <button onClick={() => setIsModalOpen(false)} className="hover:rotate-90 transition-all text-slate-400 hover:text-white bg-slate-800/50 p-2 hover:bg-slate-800 rounded-full"><X size={18} /></button>
@@ -223,32 +228,32 @@ export const MenuPage: React.FC = () => {
 
                         <form onSubmit={handleSubmit} className="p-7 space-y-6">
                             <div className="grid grid-cols-2 gap-5">
-                                <div className="col-span-2">
-                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Nama Menu</label>
-                                    <input required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full border border-slate-200 p-3.5 rounded-xl mt-1 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 font-semibold text-slate-800 shadow-sm transition-all" placeholder="Contoh: Kelola Dapil" />
+                                <div className="col-span-2 group">
+                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-emerald-700 transition-colors">Nama Menu</label>
+                                    <input required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full border border-slate-200 p-3.5 rounded-xl mt-1 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 font-semibold text-slate-800 shadow-sm transition-all" placeholder="Contoh: Kelola Dapil" />
                                 </div>
 
-                                <div>
-                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Path URL</label>
-                                    <input value={formData.path} onChange={e => setFormData({ ...formData, path: e.target.value })} className="w-full border border-slate-200 p-3.5 rounded-xl mt-1 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 font-medium text-slate-800 shadow-sm transition-all" placeholder="/dashboard/dapil" />
+                                <div className="group">
+                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-emerald-700 transition-colors">Path URL</label>
+                                    <input value={formData.path} onChange={e => setFormData({ ...formData, path: e.target.value })} className="w-full border border-slate-200 p-3.5 rounded-xl mt-1 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 font-medium text-slate-800 shadow-sm transition-all" placeholder="/dashboard/dapil" />
                                 </div>
 
-                                <div>
-                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Icon (Lucide Name)</label>
-                                    <input value={formData.icon} onChange={e => setFormData({ ...formData, icon: e.target.value })} className="w-full border border-slate-200 p-3.5 rounded-xl mt-1 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 font-medium text-slate-800 shadow-sm transition-all" placeholder="Database, Users, dll" />
+                                <div className="group">
+                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-emerald-700 transition-colors">Icon (Lucide Name)</label>
+                                    <input value={formData.icon} onChange={e => setFormData({ ...formData, icon: e.target.value })} className="w-full border border-slate-200 p-3.5 rounded-xl mt-1 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 font-medium text-slate-800 shadow-sm transition-all" placeholder="Database, Users, dll" />
                                 </div>
 
-                                <div>
-                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Urutan (Order)</label>
-                                    <input type="number" value={formData.order} onChange={e => setFormData({ ...formData, order: parseInt(e.target.value) })} className="w-full border border-slate-200 p-3.5 rounded-xl mt-1 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 font-bold text-blue-700 text-lg shadow-sm transition-all" />
+                                <div className="group">
+                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-emerald-700 transition-colors">Urutan (Order)</label>
+                                    <input type="number" value={formData.order} onChange={e => setFormData({ ...formData, order: parseInt(e.target.value) })} className="w-full border border-slate-200 p-3.5 rounded-xl mt-1 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 font-bold text-emerald-700 text-lg shadow-sm transition-all" />
                                 </div>
 
-                                <div>
-                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Parent Menu</label>
+                                <div className="group">
+                                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 group-focus-within:text-emerald-700 transition-colors">Parent Menu</label>
                                     <select
                                         value={formData.parentId || ''}
                                         onChange={e => setFormData({ ...formData, parentId: e.target.value || null })}
-                                        className="w-full border border-slate-200 p-3.5 rounded-xl mt-1 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 font-semibold text-slate-700 bg-white shadow-sm transition-all cursor-pointer"
+                                        className="w-full border border-slate-200 p-3.5 rounded-xl mt-1 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 font-semibold text-slate-700 bg-white shadow-sm transition-all cursor-pointer"
                                     >
                                         <option value="">-- Menu Utama (Root) --</option>
                                         {menus.filter(m => !m.parentId && m.id !== currentMenu?.id).map(m => (
@@ -259,8 +264,8 @@ export const MenuPage: React.FC = () => {
                             </div>
 
                             <div className="flex justify-end gap-3 pt-6 border-t border-slate-100 mt-4">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors">Batal</button>
-                                <button type="submit" className="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-md shadow-blue-600/20 hover:bg-blue-700 transition-all text-sm flex items-center justify-center gap-2 active:scale-95">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-3 text-sm font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors">Batal</button>
+                                <button type="submit" className="bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold shadow-md shadow-emerald-600/20 hover:bg-emerald-700 hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 active:scale-[0.98]">
                                     <ChevronRight size={16} /> {currentMenu ? 'Simpan Perubahan' : 'Simpan Menu'}
                                 </button>
                             </div>
@@ -274,24 +279,24 @@ export const MenuPage: React.FC = () => {
                 <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in duration-200">
                         <div className="p-8 flex flex-col items-center justify-center text-center">
-                            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mb-4 border border-red-100">
-                                <AlertTriangle size={32} />
+                            <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6 shadow-inner border border-red-100">
+                                <AlertTriangle size={40} strokeWidth={2.5} />
                             </div>
-                            <h2 className="text-xl font-bold text-slate-800 tracking-tight">Hapus Menu?</h2>
-                            <p className="text-sm text-slate-500 mt-2 font-medium leading-relaxed">
+                            <h2 className="text-xl font-extrabold text-slate-800 tracking-tight">Hapus Menu?</h2>
+                            <p className="text-[13px] text-slate-500 mt-2 font-medium leading-relaxed">
                                 Apakah Anda yakin ingin menghapus menu ini? Tindakan ini mungkin akan memengaruhi navigasi aplikasi.
                             </p>
                         </div>
-                        <div className="flex border-t border-slate-100">
+                        <div className="flex border-t border-slate-100 bg-slate-50">
                             <button
                                 onClick={() => setIsDeleteModalOpen(false)}
-                                className="flex-1 py-4 font-bold text-slate-500 hover:bg-slate-50 transition-colors"
+                                className="flex-1 py-4 font-bold text-slate-600 hover:bg-slate-100 transition-colors text-sm"
                             >
                                 Batal
                             </button>
                             <button
                                 onClick={executeDelete}
-                                className="flex-1 py-4 font-bold text-red-600 hover:bg-red-50 transition-colors border-l border-slate-100"
+                                className="flex-1 py-4 font-bold text-white bg-red-500 hover:bg-red-600 transition-colors text-sm shadow-inner"
                             >
                                 Ya, Hapus
                             </button>
@@ -305,18 +310,18 @@ export const MenuPage: React.FC = () => {
                 <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in duration-200">
                         <div className="p-8 flex flex-col items-center justify-center text-center">
-                            <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-6 shadow-inner border border-green-100">
+                            <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-6 shadow-inner border border-emerald-100">
                                 <CheckCircle size={40} strokeWidth={2.5} />
                             </div>
-                            <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Berhasil!</h2>
-                            <p className="text-sm text-slate-500 mt-2 font-medium leading-relaxed">
+                            <h2 className="text-xl font-extrabold text-slate-800 tracking-tight">Berhasil!</h2>
+                            <p className="text-[13px] text-slate-500 mt-2 font-medium leading-relaxed">
                                 {successMessage}
                             </p>
                         </div>
-                        <div className="p-5 bg-slate-50 border-t border-slate-100">
+                        <div className="p-4 bg-slate-50 border-t border-slate-100">
                             <button
                                 onClick={() => setIsSuccessModalOpen(false)}
-                                className="w-full bg-slate-900 text-white px-4 py-3 rounded-xl font-bold hover:bg-slate-800 shadow-md transition-all active:scale-95 text-sm"
+                                className="w-full bg-slate-800 text-white px-4 py-3 rounded-xl font-bold hover:bg-slate-900 shadow-md transition-all active:scale-[0.98] text-sm"
                             >
                                 Tutup
                             </button>
