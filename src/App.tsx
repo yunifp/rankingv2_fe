@@ -11,7 +11,15 @@ import { useAuthStore } from './store/useAuthStore';
 import { SearchX, ArrowLeft } from 'lucide-react';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
-import { DashboardPage } from './pages/dashboard/DashboardPage'; // <-- IMPORT HALAMAN BARU
+import { DashboardPage } from './pages/dashboard/DashboardPage';
+
+// ---> IMPORT HALAMAN PERGURUAN TINGGI DI SINI <---
+import PerguruanTinggiPage from './pages/perguruanTinggi/PerguruanTinggiPage'; 
+import ProgramStudiPage from './pages/programStudi/ProgramStudiPage';
+import KriteriaPage from './pages/kriteria/KriteriaPage';
+import PenghasilanPage from './pages/penghasilan/PenghasilanPage';
+import ImportPelamarPage from './pages/pelamar/ImportPelamarPage';
+import RankingPage from './pages/ranking/RankingPage';
 
 const NotFoundPage = () => {
   const navigate = useNavigate();
@@ -117,6 +125,14 @@ function App() {
             <Route path="roles" element={<RolePage />} />
             <Route path="menus" element={<MenuPage />} />
             <Route path="permissions" element={<PermissionPage />} />
+            
+            <Route path="perguruan-tinggi" element={<PerguruanTinggiPage />} />
+            <Route path="program-studi" element={<ProgramStudiPage />} />
+            <Route path="kriteria" element={<KriteriaPage />} />
+            <Route path="penghasilan-ortu" element={<PenghasilanPage />} />
+            <Route path="pelamar" element={<ImportPelamarPage />} />
+            <Route path="rank" element={<RankingPage />} />
+            
           </Route>
         </Route>
 
